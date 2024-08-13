@@ -198,14 +198,16 @@ def main():
             if nan_count == number_of_rows:
                 df.at[index, Last_row_name] = No_data
                 continue
-            else:
+             else:
                 combined_text = rowsToCompare + " " + enter_the_prompt
-                try:
-                    response = model.generate_content(combined_text)
-                    formatted_text = to_markdown(response.text, width=60)
-                    df.at[index, Last_row_name] = formatted_text
-                except ValueError as e:
-                    print(f"API error for row {index}")
+                while True:
+                    try:
+                        response = model.generate_content(combined_text)
+                        formatted_text = to_markdown(response.text, width=60)
+                        df.at[index, Last_row_name] = formatted_text
+                        break  
+                    except ValueError as e:
+                        print(f"API error for row {index}, retrying...")
 
     else:
         print("No suitable model found.")
