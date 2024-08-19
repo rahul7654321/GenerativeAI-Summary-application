@@ -2,7 +2,7 @@ import google.generativeai as genai
 import textwrap
 import pandas as pd
 import os
-
+import sys
 
 def check_file(file_path):
     if file_path.lower().endswith((".csv")):
@@ -182,12 +182,15 @@ def main():
     No_data = "No data Found to Compare !!"
 
     model = None
-    for m in genai.list_models():
-        if "generateContent" in m.supported_generation_methods:
-            print(m.name)
-            model = genai.GenerativeModel(m.name)
-            break
-    
+    try:
+        for m in genai.list_models():
+            if "generateContent" in m.supported_generation_methods:
+                print(m.name)
+                model = genai.GenerativeModel(m.name)
+                break
+    except Exception as e:
+        sys.exit(f"API error Please Check the Api !!")
+            
 
     if model is not None:
         for index, row in df.iterrows():
@@ -198,7 +201,7 @@ def main():
             if nan_count == number_of_rows:
                 df.at[index, Last_row_name] = No_data
                 continue
-             else:
+            else:
                 combined_text = rowsToCompare + " " + enter_the_prompt
                 while True:
                     try:
@@ -209,10 +212,12 @@ def main():
                     except ValueError as e:
                         print(f"API error for row {index}, retrying...")
 
+
     else:
         print("No suitable model found.")
 
     df = process_summary_column(df,Last_row_name,No_data)
+
 
     try:
         if file_type == "csv":
@@ -221,22 +226,26 @@ def main():
                 index=False,
                 sep=",",
             )
+            print("Summary Downloaded Successfully")
         elif file_type == "xls":
             df.to_excel(
                 os.path.expanduser("~/Documents/updated_sports.xls"),
                 index=False,
                 engine="openpyxl",
             )
+            print("Summary Downloaded Successfully")
         elif file_type == "xlsx":
             df.to_excel(
                 os.path.expanduser("~/Documents/updated_sports.xlsx"),
                 index=False,
                 engine="openpyxl",
             )
+            print("Summary Downloaded Successfully")
     except Exception as e:
         print(f"Error saving file: {e}")
 
-    # print(df)
+    # print("You Summary was Successfully Downlaods")
+    
 
 
 ######################################################################################################################################################
